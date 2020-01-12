@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 
 import "./PlaceItem.scss";
 import Card from "../../shared/components/UIElements/Card";
 import Button from "../../shared/components/FormElements/Button";
 import Modal from "../../shared/components/UIElements/Modal";
 import Map from "../../shared/components/UIElements/Map";
+import { AuthContext } from "../../shared/context/auth-context";
 
 const PlaceItem: React.FC<IPlaceItem> = ({
   id,
@@ -15,10 +16,19 @@ const PlaceItem: React.FC<IPlaceItem> = ({
   coordinates,
   creatorId
 }) => {
+  const { isLoggedIn } = useContext(AuthContext);
   const [showMap, setShowMap] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   const openMap = () => setShowMap(true);
   const closeMap = () => setShowMap(false);
+
+  const showDeleteWarning = () => setShowConfirmModal(true);
+  const cancelDeleteWarning = () => setShowConfirmModal(false);
+  const confirmDelete = () => {
+    cancelDeleteWarning();
+    console.log("DELETING....");
+  };
 
   return (
     <React.Fragment>
@@ -33,6 +43,27 @@ const PlaceItem: React.FC<IPlaceItem> = ({
         <div className="map-container">
           <Map center={coordinates} zoom={16} />
         </div>
+      </Modal>
+      <Modal
+        show={showConfirmModal}
+        onCancel={cancelDeleteWarning}
+        header="Are you sure?"
+        footerClass="place-item__modal-actions"
+        footer={
+          <React.Fragment>
+            <Button inverse onClick={cancelDeleteWarning}>
+              CANCEL
+            </Button>
+            <Button danger onClick={confirmDelete}>
+              DELETE
+            </Button>
+          </React.Fragment>
+        }
+      >
+        <p>
+          Do you want to proceed and delete this place? Please note that it
+          can't be undone thereafter
+        </p>
       </Modal>
       <li className="place-item">
         <Card className="place-item__content">
@@ -49,8 +80,14 @@ const PlaceItem: React.FC<IPlaceItem> = ({
               <Button inverse onClick={openMap}>
                 VIEW ON MAP
               </Button>
-              <Button to={`/places/${id}`}>EDIT</Button>
-              <Button danger>DELETE</Button>
+              {isLoggedIn && (
+                <React.Fragment>
+                  <Button to={`/places/${id}`}>EDIT</Button>
+                  <Button danger onClick={showDeleteWarning}>
+                    DELETE
+                  </Button>
+                </React.Fragment>
+              )}
             </div>
           </React.Fragment>
         </Card>

@@ -3,6 +3,7 @@ import React from "react";
 import "./PlaceList.scss";
 import Card from "../../shared/components/UIElements/Card";
 import PlaceItem from "./PlaceItem";
+import Button from "../../shared/components/FormElements/Button";
 
 const PlaceList: React.FC<IPlaceList> = ({ items }) => {
   if (!items.length) {
@@ -11,7 +12,7 @@ const PlaceList: React.FC<IPlaceList> = ({ items }) => {
         <Card>
           <React.Fragment>
             <h2>No places found. Maybe create one?</h2>
-            <button>Share Place</button>
+            <Button to="/places/new">Share Place</Button>
           </React.Fragment>
         </Card>
       </div>
