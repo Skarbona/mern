@@ -60,7 +60,7 @@ interface IButton {
   inverse?: boolean;
   danger?: boolean;
   href?: string;
-  children: React.ReactChild;
+  children: React.ReactChild | string;
   to?: string;
   exact?: boolean;
   type?: "submit" | "reset" | "button";

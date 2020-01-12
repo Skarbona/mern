@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import { IPlaceItem } from "../components/PlaceList";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
+import Card from "../../shared/components/UIElements/Card";
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MINLENGTH
@@ -47,19 +48,40 @@ const UpdatePlace: React.FC<{}> = () => {
       isValid,
       inputs: { title, description }
     },
-    inputHandler
+    inputHandler,
+    setFormData
   ] = useForm(
     {
       title: {
-        value: identifiedPlace && identifiedPlace.title,
-        isValid: true
+        value: "",
+        isValid: false
       },
       description: {
-        value: identifiedPlace && identifiedPlace.description,
-        isValid: true
+        value: "",
+        isValid: false
       }
     },
-    true
+    false
+  );
+
+  useEffect(
+    () => {
+      setFormData(
+        {
+          title: {
+            value: identifiedPlace && identifiedPlace.title,
+            isValid: true
+          },
+          description: {
+            value: identifiedPlace && identifiedPlace.description,
+            isValid: true
+          }
+        },
+        true
+      );
+    },
+    // eslint-disable-next-line
+    [identifiedPlace]
   );
 
   const placeUpdateSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -70,7 +92,17 @@ const UpdatePlace: React.FC<{}> = () => {
   if (!identifiedPlace) {
     return (
       <div className="center">
-        <h2>Cannot not find place!</h2>
+        <Card>
+          <h2>Cannot not find place!</h2>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!title.value) {
+    return (
+      <div className="center">
+        <h2>Loading ...</h2>
       </div>
     );
   }
