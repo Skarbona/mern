@@ -3,6 +3,7 @@ import React from "react";
 import "./UsersList.scss";
 import UserItem from "./UserItem";
 import Card from "../../shared/components/UIElements/Card";
+import { IUserList } from "./UserList.interface";
 
 const UserList: React.FC<IUserList> = ({ items }) => {
   if (!items.length) {
@@ -30,14 +31,3 @@ const UserList: React.FC<IUserList> = ({ items }) => {
 };
 
 export default UserList;
-
-export interface IUser {
-  id: string;
-  name: string;
-  places: number;
-  image: string;
-}
-
-interface IUserList {
-  items: IUser[];
-}

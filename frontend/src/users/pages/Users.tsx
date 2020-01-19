@@ -1,6 +1,7 @@
 import React from "react";
 
-import UserList, { IUser } from "../components/UsersList";
+import UserList from "../components/UsersList";
+import { IUser } from "../components/UserList.interface";
 
 const USERS: IUser[] = [
   { id: "1", name: "Filip", image: "http://i.pravatar.cc/300", places: 3 },

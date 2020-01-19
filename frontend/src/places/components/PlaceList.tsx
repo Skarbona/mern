@@ -4,6 +4,7 @@ import "./PlaceList.scss";
 import Card from "../../shared/components/UIElements/Card";
 import PlaceItem from "./PlaceItem";
 import Button from "../../shared/components/FormElements/Button";
+import { IPlaceList } from "./PlaceList.interface";
 
 const PlaceList: React.FC<IPlaceList> = ({ items }) => {
   if (!items.length) {
@@ -37,20 +38,3 @@ const PlaceList: React.FC<IPlaceList> = ({ items }) => {
 };
 
 export default PlaceList;
-
-export interface IPlaceItem {
-  id: string;
-  imageUrl: string;
-  title: string;
-  description: string;
-  address: string;
-  creator: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-}
-
-interface IPlaceList {
-  items: IPlaceItem[];
-}
