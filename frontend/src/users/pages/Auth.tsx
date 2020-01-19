@@ -107,7 +107,7 @@ const Auth: React.FC<{}> = () => {
           </Button>
         </form>
         <Button inverse onClick={switchModeHandler}>
-          <>SWITCH TO {isLoginMode ? "SIGNUP" : "LOGIN"}</>
+          {isLoginMode ? "SWITCH TO SIGNUP" : "SWITCH TO LOGIN"}
         </Button>
       </React.Fragment>
     </Card>
