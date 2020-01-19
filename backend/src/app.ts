@@ -5,12 +5,14 @@ import placesRoutes from "./routes/places";
 import usersRoutes from "./routes/users";
 
 import errorHandler from "./middlewares/errorHandler";
+import unHandledRoutes from "./middlewares/unHandledRoutes";
 
 const app = express();
 
-// app.use(bodyParser);
+app.use(bodyParser.json());
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
+app.use(unHandledRoutes);
 app.use(errorHandler);
 
 app.listen(5000);

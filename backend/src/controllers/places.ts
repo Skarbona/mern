@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
+import { validationResult } from "express-validator";
+import uuid from "uuid/v4";
 
 import { IPlaceItem } from "../../../frontend/src/places/components/PlaceList.interface";
 import HttpError from "../models/http-error";
+import getCoordsForAddress from "../util/google-map";
 
-const PLACES: IPlaceItem[] = [
+let PLACES: IPlaceItem[] = [
   {
     id: "1",
     title: "Empire State Building",
@@ -55,17 +58,91 @@ export const getPlacesByUserId = (
   next: NextFunction
 ) => {
   const { userId } = req.params;
-  const user = PLACES.find(u => u.creator === userId);
+  const places = PLACES.filter(u => u.creator === userId);
 
-  if (!user) {
+  if (!places.length) {
     return next(new HttpError("Could not find resources for provided Id", 404));
   }
 
-  res.json({ user });
+  res.json({ places });
 };
 
-export const createPlace = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {};
+export const createPlace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const error = validationResult(req);
+
+  if (!error.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+
+  const { title, description, address, creator } = req.body;
+
+  let coordinates;
+  try {
+    coordinates = await getCoordsForAddress(address);
+  } catch (e) {
+    return next(e);
+  }
+
+  const createdPlace = {
+    id: uuid(),
+    imageUrl: "",
+    title,
+    description,
+    location: coordinates,
+    address,
+    creator
+  };
+
+  PLACES.push(createdPlace);
+
+  res.status(201).json({ place: createdPlace });
+};
+
+export const updatePlace = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const error = validationResult(req);
+
+  if (!error.isEmpty()) {
+    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+  }
+
+  const { title, description } = req.body;
+  const { placeId } = req.params;
+
+  const updatedPlace = { ...PLACES.find(p => p.id === placeId) };
+
+  if (updatedPlace) {
+    const placeIndex = PLACES.findIndex(p => p.id === placeId);
+    updatedPlace.title = title;
+    updatedPlace.description = description;
+
+    PLACES[placeIndex] = updatedPlace;
+  }
+
+  res.json({ place: updatedPlace });
+};
+
+export const deletePlace = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { placeId } = req.params;
+
+  if (!PLACES.find(p => p.id === placeId)) {
+    throw new HttpError("Could not find place for provided Id", 404);
+  }
+
+  PLACES = PLACES.filter(p => p.id !== placeId);
+
+  res.json({ message: "Deleted place." });
+};

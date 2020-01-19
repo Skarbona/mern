@@ -1,23 +1,29 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
+import { check } from "express-validator";
 
-import { IUser } from "../../../frontend/src/users/components/UserList.interface";
+import * as usersControllers from "../controllers/users";
 
 const router = Router();
 
-const USERS: IUser[] = [
-  { id: "1", name: "Filip", image: "http://i.pravatar.cc/300", places: 3 },
-  { id: "2", name: "Ola", image: "http://i.pravatar.cc/299", places: 4 },
-  { id: "3", name: "Andrzej", image: "http://i.pravatar.cc/298", places: 0 }
-];
+router.get("/", usersControllers.getAllUsers);
 
-router.get("/", (req: Request, res: Response, next: NextFunction) => {
-  res.json(USERS);
-});
+router.get("/:userId", usersControllers.getUserById); // Add Full control with DataBase
 
-router.get("/:userId", (req: Request, res: Response, next: NextFunction) => {
-  const { userId } = req.params;
-  const user = USERS.find(u => u.id === userId);
-  res.json({ user });
-});
+router.post(
+  "/signup",
+  [
+    check("name")
+      .not()
+      .isEmpty()
+      .isString(),
+    check("email")
+      .normalizeEmail()
+      .isEmail(),
+    check("password").isLength({ min: 6 })
+  ],
+  usersControllers.signUp
+);
+
+router.post("/login", usersControllers.login);
 
 export default router;
