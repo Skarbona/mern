@@ -1,9 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response, Router } from "express";
+
 import { IUser } from "../../../frontend/src/users/components/UserList.interface";
 
-const express = require("express");
-
-const router = express.Router();
+const router = Router();
 
 const USERS: IUser[] = [
   { id: "1", name: "Filip", image: "http://i.pravatar.cc/300", places: 3 },
@@ -21,4 +20,4 @@ router.get("/:userId", (req: Request, res: Response, next: NextFunction) => {
   res.json({ user });
 });
 
-module.exports = router;
+export default router;

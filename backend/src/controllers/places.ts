@@ -63,3 +63,9 @@ export const getPlacesByUserId = (
 
   res.json({ user });
 };
+
+export const createPlace = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {};

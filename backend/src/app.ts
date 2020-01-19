@@ -1,10 +1,10 @@
-const express = require("express");
-const bodyParser = require("body-parser");
+import express from "express";
+import bodyParser from "body-parser";
 
-const placesRoutes = require("./routes/places");
-const usersRoutes = require("./routes/users");
+import placesRoutes from "./routes/places";
+import usersRoutes from "./routes/users";
 
-const errorHandler = require("./middlewares/errorHandler");
+import errorHandler from "./middlewares/errorHandler";
 
 const app = express();
 

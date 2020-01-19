@@ -15,4 +15,4 @@ const errorHandler = (
     .json({ message: err.message || "An unknown error occurred!" });
 };
 
-module.exports = errorHandler;
+export default errorHandler;
