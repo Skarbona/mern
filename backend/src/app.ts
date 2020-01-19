@@ -1,16 +1,18 @@
-const express = require("express");
-const bodyParser = require("body-parser");
+import express from "express";
+import bodyParser from "body-parser";
 
-const placesRoutes = require("./routes/places");
-const usersRoutes = require("./routes/users");
+import placesRoutes from "./routes/places";
+import usersRoutes from "./routes/users";
 
-const errorHandler = require("./middlewares/errorHandler");
+import errorHandler from "./middlewares/errorHandler";
+import unHandledRoutes from "./middlewares/unHandledRoutes";
 
 const app = express();
 
-// app.use(bodyParser);
+app.use(bodyParser.json());
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
+app.use(unHandledRoutes);
 app.use(errorHandler);
 
 app.listen(5000);
