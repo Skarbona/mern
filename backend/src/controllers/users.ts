@@ -1,95 +1,100 @@
 import { NextFunction, Request, Response } from "express";
-import uuid from "uuid/v4";
 import { validationResult } from "express-validator";
 
 import HttpError from "../models/http-error";
+import User, { IUser } from "../models/user";
 
-interface IUser {
-  email: string;
-  password: string;
-  name: string;
-  id: string;
-  image?: string;
-  places?: number;
-}
-
-const USERS: IUser[] = [
-  {
-    id: "1",
-    name: "Filip",
-    image: "http://i.pravatar.cc/300",
-    places: 3,
-    email: "test@test.pl",
-    password: "1234"
-  },
-  {
-    id: "2",
-    name: "Ola",
-    image: "http://i.pravatar.cc/299",
-    places: 4,
-    email: "test2@test.pl",
-    password: "1234"
-  },
-  {
-    id: "3",
-    name: "Andrzej",
-    image: "http://i.pravatar.cc/298",
-    places: 0,
-    email: "test3@test.pl",
-    password: "1234"
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const users = await User.find({}, "-password");
+    res.json({ users: users.map(user => user.toObject({ getters: true })) });
+  } catch (e) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
   }
-];
+};
 
-export const getAllUsers = (req: Request, res: Response, next: NextFunction) =>
-  res.json({ users: USERS });
-
-export const getUserById = (
+export const getUserById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { userId } = req.params;
-  const user = USERS.find(u => u.id === userId);
-  res.json({ user });
+  try {
+    const user = await User.findById(userId);
+    res.json({ user: user.toObject({ getters: true }) });
+  } catch (e) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
 };
 
-export const signUp = (req: Request, res: Response, next: NextFunction) => {
+export const signUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const error = validationResult(req);
 
   if (!error.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data.", 422);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
   }
 
   const { name, email, password } = req.body;
 
-  const hasUser = USERS.find(u => u.email === email);
+  let existingUser;
 
-  if (hasUser) {
-    throw new HttpError(
-      "Could not created user with provided email. Already exist.",
-      422
-    );
+  try {
+    existingUser = await User.findOne({ email });
+  } catch (e) {
+    return next(new HttpError("Please try again later", 500));
   }
 
-  const createdUser = {
-    id: uuid(),
-    name,
+  if (existingUser) {
+    return next(new HttpError("User exist already", 422));
+  }
+
+  const createdUser = new User({
     email,
-    password
-  };
+    name,
+    imageUrl: "http://i.pravatar.cc/298",
+    password,
+    places: []
+  } as IUser);
 
-  USERS.push(createdUser);
+  try {
+    await createdUser.save();
+  } catch (e) {
+    return next(new HttpError("Cannot signup", 500));
+  }
 
-  res.status(201).json({ user: createdUser });
+  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
-export const login = (req: Request, res: Response, next: NextFunction) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { email, password } = req.body;
+  let user;
 
-  const identifiedUser = USERS.find(u => u.email === email);
+  try {
+    user = await User.findOne({ email });
+  } catch (e) {
+    return next(new HttpError("Please try again later", 500));
+  }
 
-  if (!identifiedUser || identifiedUser.password !== password) {
-    throw new HttpError("Could not identify user.", 401);
+  if (!user || user.password !== password) {
+    return next(new HttpError("Could not identify user.", 401));
   }
 
   res.json({ message: "Logged in!" });
