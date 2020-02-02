@@ -6,7 +6,7 @@ import Card from "../../shared/components/UIElements/Card";
 import { IUserList } from "./UserList.interface";
 
 const UserList: React.FC<IUserList> = ({ items }) => {
-  if (!items.length) {
+  if (!items || !items.length) {
     return (
       <div className="center">
         <Card>
@@ -21,9 +21,9 @@ const UserList: React.FC<IUserList> = ({ items }) => {
         <UserItem
           key={user.id}
           id={user.id}
-          image={user.image}
+          image={user.imageUrl}
           name={user.name}
-          placeCount={user.places}
+          placeCount={user.places.length}
         />
       ))}
     </ul>

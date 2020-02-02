@@ -5,7 +5,10 @@ import Card from "../../shared/components/UIElements/Card";
 import Button from "../../shared/components/FormElements/Button";
 import Modal from "../../shared/components/UIElements/Modal";
 import Map from "../../shared/components/UIElements/Map";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { AuthContext } from "../../shared/context/auth-context";
+import { useHttp } from "../../shared/hooks/http-hook";
 
 const PlaceItem: React.FC<IPlaceItem> = ({
   id,
@@ -14,9 +17,11 @@ const PlaceItem: React.FC<IPlaceItem> = ({
   description,
   address,
   coordinates,
+  onDelete,
   creatorId
 }) => {
-  const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn, userId } = useContext(AuthContext);
+  const { isLoading, error, send, clearError } = useHttp();
   const [showMap, setShowMap] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
@@ -25,13 +30,20 @@ const PlaceItem: React.FC<IPlaceItem> = ({
 
   const showDeleteWarning = () => setShowConfirmModal(true);
   const cancelDeleteWarning = () => setShowConfirmModal(false);
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     cancelDeleteWarning();
-    console.log("DELETING....");
+    try {
+      await send({
+        url: `http://localhost:5000/api/places/${id}`,
+        method: "DELETE"
+      });
+      onDelete(id);
+    } catch (e) {}
   };
 
   return (
     <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
       <Modal
         show={showMap}
         onCancel={closeMap}
@@ -68,6 +80,7 @@ const PlaceItem: React.FC<IPlaceItem> = ({
       <li className="place-item">
         <Card className="place-item__content">
           <React.Fragment>
+            {isLoading && <LoadingSpinner asOverlay />}
             <div className="place-item__image">
               <img src={image} alt={title} />
             </div>
@@ -80,7 +93,7 @@ const PlaceItem: React.FC<IPlaceItem> = ({
               <Button inverse onClick={openMap}>
                 VIEW ON MAP
               </Button>
-              {isLoggedIn && (
+              {isLoggedIn && userId === creatorId && (
                 <React.Fragment>
                   <Button to={`/places/${id}`}>EDIT</Button>
                   <Button danger onClick={showDeleteWarning}>
@@ -109,4 +122,5 @@ interface IPlaceItem {
     lat: number;
     lng: number;
   };
+  onDelete(id: string): void;
 }

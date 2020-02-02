@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/auth-context";
 import Button from "../FormElements/Button";
 
 const NavLinks: React.FC<{}> = () => {
-  const { isLoggedIn, logout } = useContext(AuthContext);
+  const { isLoggedIn, logout, userId } = useContext(AuthContext);
   return (
     <ul className="nav-links">
       <li>
@@ -17,7 +17,7 @@ const NavLinks: React.FC<{}> = () => {
       {isLoggedIn && (
         <React.Fragment>
           <li>
-            <NavLink to="/1/places" exact>
+            <NavLink to={`/${userId}/places`} exact>
               MY PLACES
             </NavLink>
           </li>

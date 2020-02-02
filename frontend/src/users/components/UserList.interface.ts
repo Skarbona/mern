@@ -1,10 +1,10 @@
 export interface IUser {
   id: string;
   name: string;
-  places: number;
-  image: string;
+  places: string[];
+  imageUrl: string;
 }
 
 export interface IUserList {
-  items: IUser[];
+  items: IUser[] | null;
 }

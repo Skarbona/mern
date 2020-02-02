@@ -6,8 +6,8 @@ import PlaceItem from "./PlaceItem";
 import Button from "../../shared/components/FormElements/Button";
 import { IPlaceList } from "./PlaceList.interface";
 
-const PlaceList: React.FC<IPlaceList> = ({ items }) => {
-  if (!items.length) {
+const PlaceList: React.FC<IPlaceList> = ({ items, onDelete }) => {
+  if (!items || !items.length) {
     return (
       <div className="place-list center">
         <Card>
@@ -31,6 +31,7 @@ const PlaceList: React.FC<IPlaceList> = ({ items }) => {
           address={place.address}
           creatorId={place.creator}
           coordinates={place.location}
+          onDelete={onDelete}
         />
       ))}
     </ul>

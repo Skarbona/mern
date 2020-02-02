@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useHistory } from "react-router-dom";
 
-import { IPlaceItem } from "../components/PlaceList";
+import { IPlaceItem } from "../components/PlaceList.interface";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import Card from "../../shared/components/UIElements/Card";
@@ -11,37 +11,17 @@ import {
 } from "../../shared/utils/validators";
 import "./PlaceForm.scss";
 import { useForm } from "../../shared/hooks/form-hook";
-
-const PLACES: IPlaceItem[] = [
-  {
-    id: "1",
-    title: "Empire State Building",
-    description: "Nice building",
-    imageUrl: "http://www.dobresobie.pl/images/articles/208.jpg",
-    address: "20 W 34th St, New York, NY 10001, Stany Zjednoczone",
-    creator: "1",
-    location: {
-      lng: -73.9856644,
-      lat: 40.7484405
-    }
-  },
-  {
-    id: "2",
-    title: "Empire State Building",
-    description: "Nice building 2",
-    imageUrl: "http://www.dobresobie.pl/images/articles/208.jpg",
-    address: "20 W 34th St, New York, NY 10001, Stany Zjednoczone",
-    creator: "2",
-    location: {
-      lng: -73.9856644,
-      lat: 40.7484405
-    }
-  }
-];
+import { useHttp } from "../../shared/hooks/http-hook";
+import { AuthContext } from "../../shared/context/auth-context";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 
 const UpdatePlace: React.FC<{}> = () => {
+  const auth = useContext(AuthContext);
   const { placeId } = useParams();
-  const identifiedPlace = PLACES.find(p => p.id === placeId);
+  const { isLoading, error, clearError, send } = useHttp();
+  const [place, setPlace] = useState<IPlaceItem | null>(null);
+  const history = useHistory();
 
   const [
     {
@@ -64,32 +44,50 @@ const UpdatePlace: React.FC<{}> = () => {
     false
   );
 
-  useEffect(
-    () => {
-      setFormData(
-        {
-          title: {
-            value: identifiedPlace && identifiedPlace.title,
-            isValid: true
+  useEffect(() => {
+    const fetchPlace = async () => {
+      try {
+        const data = await send({
+          url: `http://localhost:5000/api/places/${placeId}`
+        });
+        setPlace(data.place);
+        setFormData(
+          {
+            title: {
+              value: data.place.title,
+              isValid: true
+            },
+            description: {
+              value: data.place.description,
+              isValid: true
+            }
           },
-          description: {
-            value: identifiedPlace && identifiedPlace.description,
-            isValid: true
-          }
-        },
-        true
-      );
-    },
-    // eslint-disable-next-line
-    [identifiedPlace]
-  );
+          true
+        );
+      } catch (e) {}
+    };
+    fetchPlace();
+  }, [send, placeId, setFormData]);
 
-  const placeUpdateSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const placeUpdateSubmitHandler = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
-    console.log(title, description);
+    await send({
+      url: `http://localhost:5000/api/places/${placeId}`,
+      method: "PATCH",
+      body: JSON.stringify({
+        title: title.value,
+        description: description.value
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    history.push(`/${auth.userId}/places`);
   };
 
-  if (!identifiedPlace) {
+  if (!place && !error) {
     return (
       <div className="center">
         <Card>
@@ -99,41 +97,44 @@ const UpdatePlace: React.FC<{}> = () => {
     );
   }
 
-  if (!title.value) {
+  if (!title.value || isLoading) {
     return (
       <div className="center">
-        <h2>Loading ...</h2>
+        <LoadingSpinner />
       </div>
     );
   }
 
   return (
-    <form className="place-form" onSubmit={placeUpdateSubmitHandler}>
-      <Input
-        id="title"
-        type="text"
-        label="Title"
-        element="input"
-        validators={[VALIDATOR_REQUIRE()]}
-        errorText="Please enter a valid title"
-        onInput={inputHandler}
-        initialValue={title.value}
-        initialIsValid={title.isValid}
-      />
-      <Input
-        id="description"
-        label="Description"
-        element="textarea"
-        validators={[VALIDATOR_REQUIRE(), VALIDATOR_MINLENGTH(5)]}
-        errorText="Please enter a valid description (min 5 characters)"
-        onInput={inputHandler}
-        initialValue={description.value}
-        initialIsValid={description.isValid}
-      />
-      <Button type="submit" disabled={!isValid}>
-        UPDATE PLACE
-      </Button>
-    </form>
+    <React.Fragment>
+      <ErrorModal error={error} onClear={clearError} />
+      <form className="place-form" onSubmit={placeUpdateSubmitHandler}>
+        <Input
+          id="title"
+          type="text"
+          label="Title"
+          element="input"
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText="Please enter a valid title"
+          onInput={inputHandler}
+          initialValue={title.value}
+          initialIsValid={title.isValid}
+        />
+        <Input
+          id="description"
+          label="Description"
+          element="textarea"
+          validators={[VALIDATOR_REQUIRE(), VALIDATOR_MINLENGTH(5)]}
+          errorText="Please enter a valid description (min 5 characters)"
+          onInput={inputHandler}
+          initialValue={description.value}
+          initialIsValid={description.isValid}
+        />
+        <Button type="submit" disabled={!isValid}>
+          UPDATE PLACE
+        </Button>
+      </form>
+    </React.Fragment>
   );
 };
 
