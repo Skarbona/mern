@@ -12,5 +12,6 @@ export interface IPlaceItem {
 }
 
 export interface IPlaceList {
-  items: IPlaceItem[];
+  items: IPlaceItem[] | null;
+  onDelete(id: string): void;
 }
