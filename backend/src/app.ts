@@ -8,11 +8,13 @@ import usersRoutes from "./routes/users";
 
 import errorHandler from "./middlewares/errorHandler";
 import unHandledRoutes from "./middlewares/unHandledRoutes";
+import corsHeaders from "./middlewares/cors";
 
 config();
 const app = express();
 
 app.use(bodyParser.json());
+app.use(corsHeaders);
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);
 app.use(unHandledRoutes);
