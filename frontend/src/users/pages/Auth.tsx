@@ -6,6 +6,7 @@ import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
@@ -37,7 +38,7 @@ const Auth: React.FC<{}> = () => {
   const authSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const {
-      inputs: { name, email, password }
+      inputs: { name, email, password, image }
     } = formState;
 
     if (isLoginMode) {
@@ -57,17 +58,15 @@ const Auth: React.FC<{}> = () => {
       } catch (e) {}
     } else {
       try {
+        const formData = new FormData();
+        formData.append("email", email.value);
+        formData.append("name", name.value);
+        formData.append("password", password.value);
+        formData.append("image", image.value);
         const data = await send({
           url: "http://localhost:5000/api/users/signup",
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            name: name.value,
-            email: email.value,
-            password: password.value
-          })
+          body: formData
         });
         login(data.user.id);
       } catch (e) {}
@@ -84,6 +83,7 @@ const Auth: React.FC<{}> = () => {
         ...formState.inputs
       };
       delete newFormData.name;
+      delete newFormData.image;
       setFormData(
         {
           ...newFormData
@@ -96,6 +96,10 @@ const Auth: React.FC<{}> = () => {
           ...formState.inputs,
           name: {
             value: "",
+            isValid: false
+          },
+          image: {
+            value: null,
             isValid: false
           }
         },
@@ -115,15 +119,18 @@ const Auth: React.FC<{}> = () => {
           <hr />
           <form onSubmit={authSubmitHandler}>
             {!isLoginMode && (
-              <Input
-                element="input"
-                id="name"
-                type="text"
-                label="Your Name"
-                validators={[VALIDATOR_REQUIRE()]}
-                errorText="Please enter a name."
-                onInput={inputHandler}
-              />
+              <React.Fragment>
+                <Input
+                  element="input"
+                  id="name"
+                  type="text"
+                  label="Your Name"
+                  validators={[VALIDATOR_REQUIRE()]}
+                  errorText="Please enter a name."
+                  onInput={inputHandler}
+                />
+                <ImageUpload id="image" center onInput={inputHandler} />
+              </React.Fragment>
             )}
             <Input
               id="email"

@@ -8,6 +8,7 @@ import {
   VALIDATOR_REQUIRE
 } from "../../shared/utils/validators";
 import Button from "../../shared/components/FormElements/Button";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import { useForm } from "../../shared/hooks/form-hook";
@@ -30,6 +31,10 @@ const NewPlace: React.FC<{}> = () => {
       address: {
         value: "",
         isValid: false
+      },
+      image: {
+        value: null,
+        isValid: false
       }
     },
     false
@@ -39,20 +44,21 @@ const NewPlace: React.FC<{}> = () => {
 
   const placeSubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     const {
-      inputs: { title, description, address }
+      inputs: { title, description, address, image }
     } = formState;
     e.preventDefault();
     try {
+      const formData = new FormData();
+      formData.append("title", title.value);
+      formData.append("description", description.value);
+      formData.append("address", address.value);
+      formData.append("creator", auth.userId as any);
+      formData.append("image", image.value);
+
       await send({
         url: "http://localhost:5000/api/places",
         method: "POST",
-        body: JSON.stringify({
-          title: title.value,
-          description: description.value,
-          address: address.value,
-          creator: auth.userId
-        }),
-        headers: { "Content-Type": "application/json" }
+        body: formData
       });
       history.push("/");
     } catch (e) {}
@@ -88,6 +94,11 @@ const NewPlace: React.FC<{}> = () => {
           errorText="Please enter a valid address"
           validators={[VALIDATOR_REQUIRE()]}
           onInput={inputHandler}
+        />
+        <ImageUpload
+          id="image"
+          onInput={inputHandler}
+          errorText="Please provide an image"
         />
         <Button type="submit" disabled={!formState.isValid}>
           ADD PLACE

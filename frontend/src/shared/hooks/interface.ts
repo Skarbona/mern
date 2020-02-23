@@ -24,7 +24,7 @@ export type INewPlaceActionType =
 export interface INewPlaceState {
   inputs: {
     [inputId: string]: {
-      value: string | undefined;
+      value: any;
       isValid: boolean;
     };
   };
