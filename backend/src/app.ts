@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import path from "path";
 import { config } from "dotenv";
 
 import placesRoutes from "./routes/places";
@@ -14,6 +15,8 @@ config();
 const app = express();
 
 app.use(bodyParser.json());
+console.log()
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 app.use(corsHeaders);
 app.use("/api/places", placesRoutes);
 app.use("/api/users", usersRoutes);

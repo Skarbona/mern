@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import fs from "fs";
 
 const errorHandler = (
   err: any,
@@ -6,6 +7,11 @@ const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+        console.log(err)
+    });
+  }
   if (res.headersSent) {
     return next(err);
   }
