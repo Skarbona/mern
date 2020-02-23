@@ -2,6 +2,7 @@ import { Router } from "express";
 import { check } from "express-validator";
 
 import * as usersControllers from "../controllers/users";
+import { fileUpload } from "../middlewares/file-upload";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.get("/:userId", usersControllers.getUserById); // Add Full control with D
 
 router.post(
   "/signup",
+  fileUpload.single("image"),
   [
     check("name")
       .not()

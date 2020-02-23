@@ -2,12 +2,14 @@ import { Router } from "express";
 import { check } from "express-validator";
 
 import * as placeControllers from "../controllers/places";
+import { fileUpload } from "../middlewares/file-upload";
 
 const router = Router();
 
 router.get("/", placeControllers.getAllPlaces);
 router.post(
   "/",
+  fileUpload.single("image"),
   [
     check("title")
       .not()

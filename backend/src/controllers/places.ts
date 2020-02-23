@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import mongoose from "mongoose";
+import fs from "fs";
 
 import HttpError from "../models/http-error";
 import getCoordsForAddress from "../util/google-map";
@@ -92,7 +93,7 @@ export const createPlace = async (
   const createdPlace = new Place({
     title,
     description,
-    imageUrl: "http://www.dobresobie.pl/images/articles/208.jpg",
+    imageUrl: req.file.path,
     address,
     location: coordinates,
     creator
@@ -173,6 +174,9 @@ export const deletePlace = async (
     if (!place) {
       return next(new HttpError("Place doesn't exist", 404));
     }
+
+    const imagePath = place.imageUrl;
+
     const session = await mongoose.startSession();
     session.startTransaction();
     await place.remove({ session } as any);
@@ -180,10 +184,13 @@ export const deletePlace = async (
     await creator.places.pull(place);
     await creator.save({ session });
     await session.commitTransaction();
+
+    fs.unlink(imagePath, err => console.log(err));
   } catch (e) {
     return next(
       new HttpError("Something went wrong, could not find place", 500)
     );
   }
+
   res.json({ message: "Deleted place." });
 };

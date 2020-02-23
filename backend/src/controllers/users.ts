@@ -41,7 +41,6 @@ export const signUp = async (
   next: NextFunction
 ) => {
   const error = validationResult(req);
-
   if (!error.isEmpty()) {
     return next(
       new HttpError("Invalid inputs passed, please check your data.", 422)
@@ -65,7 +64,7 @@ export const signUp = async (
   const createdUser = new User({
     email,
     name,
-    imageUrl: "http://i.pravatar.cc/298",
+    imageUrl: req.file ? req.file.path : '',
     password,
     places: []
   } as IUser);
