@@ -4,11 +4,7 @@ import {
   newPlaceActionTypes
 } from "./interface";
 
-export const inputChangeAction = (
-  id: string,
-  value: string,
-  isValid: boolean
-) =>
+export const inputChangeAction = (id: string, value: any, isValid: boolean) =>
   ({
     type: newPlaceActionTypes.INPUT_CHANGE,
     value,

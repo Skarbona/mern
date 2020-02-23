@@ -18,7 +18,7 @@ export const useForm = (
   } as INewPlaceState);
 
   const inputHandler = useCallback(
-    (id: string, value: string, isValid: boolean) =>
+    (id: string, value: any, isValid: boolean) =>
       dispatch(inputChangeAction(id, value, isValid)),
     []
   );
