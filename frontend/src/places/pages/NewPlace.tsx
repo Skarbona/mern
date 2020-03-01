@@ -52,13 +52,15 @@ const NewPlace: React.FC<{}> = () => {
       formData.append("title", title.value);
       formData.append("description", description.value);
       formData.append("address", address.value);
-      formData.append("creator", auth.userId as any);
       formData.append("image", image.value);
 
       await send({
         url: "http://localhost:5000/api/places",
         method: "POST",
-        body: formData
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
       });
       history.push("/");
     } catch (e) {}

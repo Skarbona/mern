@@ -4,12 +4,14 @@ export const AuthContext = createContext<IAuthContext>({
   isLoggedIn: false,
   login: () => {},
   userId: null,
-  logout: () => {}
+  logout: () => {},
+  token: null
 });
 
 interface IAuthContext {
   isLoggedIn: boolean;
-  login(userId: string): void;
+  login(userId: string, token: string, expirationDate?: any): void;
   userId: string | null;
   logout(): void;
+  token: string | null;
 }

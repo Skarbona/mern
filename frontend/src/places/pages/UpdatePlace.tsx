@@ -81,7 +81,8 @@ const UpdatePlace: React.FC<{}> = () => {
         description: description.value
       }),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.token}`
       }
     });
     history.push(`/${auth.userId}/places`);

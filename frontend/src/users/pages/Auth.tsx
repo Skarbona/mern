@@ -43,7 +43,7 @@ const Auth: React.FC<{}> = () => {
 
     if (isLoginMode) {
       try {
-        const data = await send({
+        const { userId, token } = await send({
           url: "http://localhost:5000/api/users/login",
           method: "POST",
           headers: {
@@ -54,7 +54,7 @@ const Auth: React.FC<{}> = () => {
             password: password.value
           })
         });
-        login(data.user.id);
+        login(userId, token);
       } catch (e) {}
     } else {
       try {
@@ -63,12 +63,12 @@ const Auth: React.FC<{}> = () => {
         formData.append("name", name.value);
         formData.append("password", password.value);
         formData.append("image", image.value);
-        const data = await send({
+        const { userId, token } = await send({
           url: "http://localhost:5000/api/users/signup",
           method: "POST",
           body: formData
         });
-        login(data.user.id);
+        login(userId, token);
       } catch (e) {}
     }
   };

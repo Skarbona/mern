@@ -1,8 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { config } from "dotenv";
 
 import HttpError from "../models/http-error";
 import User, { IUser } from "../models/user";
+
+config();
 
 export const getAllUsers = async (
   req: Request,
@@ -61,11 +66,18 @@ export const signUp = async (
     return next(new HttpError("User exist already", 422));
   }
 
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (e) {
+    return next(new HttpError("Could not create user", 500));
+  }
+
   const createdUser = new User({
     email,
     name,
-    imageUrl: req.file ? req.file.path : '',
-    password,
+    imageUrl: req.file ? req.file.path : "",
+    password: hashedPassword,
     places: []
   } as IUser);
 
@@ -75,7 +87,20 @@ export const signUp = async (
     return next(new HttpError("Cannot signup", 500));
   }
 
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch (e) {
+    return next(new HttpError("Cannot signup", 500));
+  }
+
+  res
+    .status(201)
+    .json({ userId: createdUser.id, email: createdUser.email, token });
 };
 
 export const login = async (
@@ -92,9 +117,35 @@ export const login = async (
     return next(new HttpError("Please try again later", 500));
   }
 
-  if (!user || user.password !== password) {
+  if (!user) {
     return next(new HttpError("Could not identify user.", 401));
   }
 
-  res.json({ message: "Logged in!", user: user.toObject({ getters: true }) });
+  let isValidPassword = false;
+  try {
+    isValidPassword = await bcrypt.compare(password, user.password);
+  } catch (e) {
+    return next(
+      new HttpError("Could not login, please check your credentials.", 500)
+    );
+  }
+
+  if (!isValidPassword) {
+    return next(
+      new HttpError("Could not login, please check your credentials.", 500)
+    );
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch (e) {
+    return next(new HttpError("Cannot signup", 500));
+  }
+
+  res.json({ userId: user.id, email: email.id, token });
 };
