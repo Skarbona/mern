@@ -3,10 +3,15 @@ import { check } from "express-validator";
 
 import * as placeControllers from "../controllers/places";
 import { fileUpload } from "../middlewares/file-upload";
+import { authMiddleware } from "../middlewares/auth";
 
 const router = Router();
 
 router.get("/", placeControllers.getAllPlaces);
+router.get("/user/:userId", placeControllers.getPlacesByUserId);
+router.get("/:placeId", placeControllers.getPlaceById);
+
+router.use(authMiddleware);
 router.post(
   "/",
   fileUpload.single("image"),
@@ -23,8 +28,6 @@ router.post(
   ],
   placeControllers.createPlace
 );
-
-router.get("/:placeId", placeControllers.getPlaceById);
 router.patch(
   "/:placeId",
   [
@@ -37,7 +40,5 @@ router.patch(
   placeControllers.updatePlace
 );
 router.delete("/:placeId", placeControllers.deletePlace);
-
-router.get("/user/:userId", placeControllers.getPlacesByUserId);
 
 export default router;

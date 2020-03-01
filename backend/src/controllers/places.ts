@@ -7,6 +7,7 @@ import HttpError from "../models/http-error";
 import getCoordsForAddress from "../util/google-map";
 import Place, { IPlace } from "../models/place";
 import User, { IUserType } from "../models/user";
+import { withAuthData } from "../middlewares/auth";
 
 export const getAllPlaces = async (
   req: Request,
@@ -69,7 +70,7 @@ export const getPlacesByUserId = async (
 };
 
 export const createPlace = async (
-  req: Request,
+  req: withAuthData,
   res: Response,
   next: NextFunction
 ) => {
@@ -81,7 +82,7 @@ export const createPlace = async (
     );
   }
 
-  const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
 
   let coordinates;
   try {
@@ -89,7 +90,7 @@ export const createPlace = async (
   } catch (e) {
     return next(e);
   }
-
+  const creator = req.userData.userId;
   const createdPlace = new Place({
     title,
     description,
@@ -125,7 +126,7 @@ export const createPlace = async (
 };
 
 export const updatePlace = async (
-  req: Request,
+  req: withAuthData,
   res: Response,
   next: NextFunction
 ) => {
@@ -147,6 +148,9 @@ export const updatePlace = async (
     );
   }
 
+  if (place.creator.toString() !== req.userData.userId) {
+    return next(new HttpError("You are not allowed to edit this place.", 401));
+  }
   if (place) {
     place.title = title;
     place.description = description;
@@ -163,7 +167,7 @@ export const updatePlace = async (
 };
 
 export const deletePlace = async (
-  req: Request,
+  req: withAuthData,
   res: Response,
   next: NextFunction
 ) => {
@@ -173,6 +177,14 @@ export const deletePlace = async (
     const place = await Place.findById(placeId).populate("creator");
     if (!place) {
       return next(new HttpError("Place doesn't exist", 404));
+    }
+
+    const creatorData = (place.creator as unknown) as { id: string };
+
+    if (creatorData.id !== req.userData.userId) {
+      return next(
+        new HttpError("You are not allowed to edit this place.", 401)
+      );
     }
 
     const imagePath = place.imageUrl;

@@ -20,7 +20,7 @@ const PlaceItem: React.FC<IPlaceItem> = ({
   onDelete,
   creatorId
 }) => {
-  const { isLoggedIn, userId } = useContext(AuthContext);
+  const { isLoggedIn, userId, token } = useContext(AuthContext);
   const { isLoading, error, send, clearError } = useHttp();
   const [showMap, setShowMap] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
@@ -35,7 +35,10 @@ const PlaceItem: React.FC<IPlaceItem> = ({
     try {
       await send({
         url: `http://localhost:5000/api/places/${id}`,
-        method: "DELETE"
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       onDelete(id);
     } catch (e) {}
