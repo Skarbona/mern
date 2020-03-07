@@ -25,7 +25,9 @@
     "mongoose-unique-validator": "^2.0.3",
     "multer": "^1.4.2",
     "ts-mongoose": "0.0.21",
-    "uuid": "^3.4.0"
+    "uuid": "^3.4.0",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.7.5"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
@@ -37,9 +39,7 @@
     "@types/mongoose-unique-validator": "^1.0.3",
     "@types/node": "^13.1.8",
     "@types/uuid": "^3.4.6",
-    "ts-node-dev": "^1.0.0-pre.44",
     "tslib": "^1.10.0",
-    "typescript": "^3.7.5"
   },
   "type": "module"
 }
