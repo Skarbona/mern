@@ -34,7 +34,7 @@ const PlaceItem: React.FC<IPlaceItem> = ({
     cancelDeleteWarning();
     try {
       await send({
-        url: `http://localhost:5000/api/places/${id}`,
+        url: `${process.env.REACT_APP_BACKEND_API}/places/${id}`,
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
@@ -85,7 +85,10 @@ const PlaceItem: React.FC<IPlaceItem> = ({
           <React.Fragment>
             {isLoading && <LoadingSpinner asOverlay />}
             <div className="place-item__image">
-              <img src={`http://localhost:5000/${image}`} alt={title} />
+              <img
+                src={`${process.env.REACT_APP_ASSETS}/${image}`}
+                alt={title}
+              />
             </div>
             <div className="place-item__info">
               <h2>{title}</h2>
