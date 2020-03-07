@@ -55,7 +55,7 @@ const NewPlace: React.FC<{}> = () => {
       formData.append("image", image.value);
 
       await send({
-        url: "http://localhost:5000/api/places",
+        url: process.env.REACT_APP_BACKEND_API + "/places",
         method: "POST",
         body: formData,
         headers: {

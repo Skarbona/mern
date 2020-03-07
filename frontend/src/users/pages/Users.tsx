@@ -13,7 +13,9 @@ const Users: React.FC<{}> = () => {
   useEffect(() => {
     const sendRequest = async () => {
       try {
-        const data = await send({ url: "http://localhost:5000/api/users" });
+        const data = await send({
+          url: `${process.env.REACT_APP_BACKEND_API}/users`
+        });
         setUsers(data.users);
       } catch (e) {}
     };

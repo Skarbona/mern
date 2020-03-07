@@ -48,7 +48,7 @@ const UpdatePlace: React.FC<{}> = () => {
     const fetchPlace = async () => {
       try {
         const data = await send({
-          url: `http://localhost:5000/api/places/${placeId}`
+          url: `${process.env.REACT_APP_BACKEND_API}/places/${placeId}`
         });
         setPlace(data.place);
         setFormData(
@@ -74,7 +74,7 @@ const UpdatePlace: React.FC<{}> = () => {
   ) => {
     e.preventDefault();
     await send({
-      url: `http://localhost:5000/api/places/${placeId}`,
+      url: `${process.env.REACT_APP_BACKEND_API}/places/${placeId}`,
       method: "PATCH",
       body: JSON.stringify({
         title: title.value,

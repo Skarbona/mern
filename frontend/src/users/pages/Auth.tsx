@@ -44,7 +44,7 @@ const Auth: React.FC<{}> = () => {
     if (isLoginMode) {
       try {
         const { userId, token } = await send({
-          url: "http://localhost:5000/api/users/login",
+          url: `${process.env.REACT_APP_BACKEND_API}/users/login`,
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -64,7 +64,7 @@ const Auth: React.FC<{}> = () => {
         formData.append("password", password.value);
         formData.append("image", image.value);
         const { userId, token } = await send({
-          url: "http://localhost:5000/api/users/signup",
+          url: `${process.env.REACT_APP_BACKEND_API}/users/signup`,
           method: "POST",
           body: formData
         });
