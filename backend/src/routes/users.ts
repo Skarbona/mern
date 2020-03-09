@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { check } from "express-validator";
+import multer from 'multer';
 
 import * as usersControllers from "../controllers/users";
 import { fileUpload } from "../middlewares/file-upload";
@@ -13,13 +14,16 @@ router.get("/:userId", usersControllers.getUserById); // Add Full control with D
 
 router.post(
   "/signup",
-    single(req, res, function (err: any) {
-        if (err instanceof multer.MulterError) {
-          console.log(111111111111111, err)
-        } else if (err) {
-          console.log(22222222222, err)
-        }
-      },
+  function (req, res, next) {
+    single(req, res, function(err: any) {
+      if (err instanceof multer.MulterError) {
+        console.log(111111111111111, err)
+      } else if (err) {
+        console.log(22222222222, err)
+      }
+      next();
+    });
+  },
   [
     check("name")
       .not()
