@@ -1,6 +1,7 @@
 import multer from "multer";
 import uuid from "uuid/v1";
 import HttpError from "../models/http-error";
+import { NextFunction, Request, Response } from "express";
 
 const MIME_TYPE_MAP = {
   "image/png": "png",
@@ -8,7 +9,7 @@ const MIME_TYPE_MAP = {
   "image/jpg": "jpg"
 } as any;
 
-export const fileUpload = multer({
+const fileUpload = multer({
   limits: {
     fileSize: 500000
   },
@@ -27,3 +28,16 @@ export const fileUpload = multer({
     cb(error, isValid);
   }
 });
+
+const upload = fileUpload.single("image");
+
+export const uploadMiddleWare =  (req: Request, res: Response, next: NextFunction) => {
+  upload(req, res, (err: any) => {
+    if (err instanceof multer.MulterError) {
+      console.log('A Multer error occurred when uploading', err)
+    } else if (err) {
+      console.log('An unknown error occurred when uploading', err)
+    }
+    next();
+  });
+};

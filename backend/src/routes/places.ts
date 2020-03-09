@@ -2,7 +2,7 @@ import { Router } from "express";
 import { check } from "express-validator";
 
 import * as placeControllers from "../controllers/places";
-import { fileUpload } from "../middlewares/file-upload";
+import { uploadMiddleWare } from "../middlewares/file-upload";
 import { authMiddleware } from "../middlewares/auth";
 
 const router = Router();
@@ -14,7 +14,7 @@ router.get("/:placeId", placeControllers.getPlaceById);
 router.use(authMiddleware);
 router.post(
   "/",
-  fileUpload.single("image"),
+  uploadMiddleWare,
   [
     check("title")
       .not()
